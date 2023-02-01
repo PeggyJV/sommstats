@@ -1,13 +1,18 @@
 //! `start` subcommand - example of how to write a subcommand
 
-use crate::application::BALANCES;
+use std::net::SocketAddr;
+
+use crate::query::{update_foundation_balance, update_community_pool_balance, update_staking_balance, get_circulating_supply};
+use crate::snapshot::{take_cache_snapshot, try_load_snapshot};
+use crate::{query::update_vesting_balance};
 /// App-local prelude includes `app_reader()`/`app_writer()`/`app_config()`
 /// accessors along with logging macros. Customize as you see fit.
 use crate::prelude::*;
-use crate::query::track_vesting_balances;
 
-use crate::config::SommelierApiConfig;
-use abscissa_core::{config, Command, FrameworkError, Runnable};
+
+use abscissa_core::{Command, Runnable};
+use axum::Router;
+use axum::routing::get;
 use clap::Parser;
 use ocular::QueryClient;
 
@@ -26,29 +31,31 @@ impl Runnable for StartCmd {
     fn run(&self) {
         let config = APP.config();
         let mut somm_qclient = QueryClient::new(&config.grpc.clone()).unwrap();
-        // let mut osmo_qclient = QueryClient::new("https://osmosis-grpc.polkachu.com:12590").unwrap();
 
         abscissa_tokio::run(&APP, async {
-            track_vesting_balances(&mut somm_qclient).await.unwrap();
+            if !try_load_snapshot().await.expect("failed to read snapshot file") {
+                info!("no snapshot found. updating cache!");
+                info!("updating vesting balances...");
+                update_vesting_balance(&mut somm_qclient).await.unwrap();
+                info!("updating foundation wallet balance...");
+                update_foundation_balance(&mut somm_qclient).await.unwrap();
+                info!("updating community pool balance...");
+                update_community_pool_balance(&mut somm_qclient).await.unwrap();
+                info!("updating staking balance...");
+                update_staking_balance(&mut somm_qclient).await.unwrap();
+                info!("taking a snapshot...");
+                take_cache_snapshot().await.unwrap();
+            }
 
-            println!("total: {:?}", BALANCES.lock().await);
+            let app = Router::new()
+                .route("/circulating-supply", get(get_circulating_supply));
 
-            // let somm_addresses = &SOMM_ADDRESSES.lock().await;
-            // for address in somm_addresses.iter() {
-            //     get_and_cache_balances(&mut somm_qclient, address)
-            //         .await
-            //         .unwrap();
-            // }
-
-            // let osmo_addresses = &OSMO_ADDRESSES.lock().await;
-            // println!("OSMO ADDRESSES: {:?}", osmo_addresses);
-            // for address in osmo_addresses.iter() {
-            //     get_and_cache_balances(&mut osmo_qclient, address)
-            //         .await
-            //         .unwrap();
-            // }
-
-            // println!("{:?}", BALANCES.lock().await);
+            let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+            info!("listening on {}", addr);
+            axum::Server::bind(&addr)
+                .serve(app.into_make_service())
+                .await
+                .unwrap();
         })
         .unwrap_or_else(|e| {
             status_err!("executor exited with error: {}", e);

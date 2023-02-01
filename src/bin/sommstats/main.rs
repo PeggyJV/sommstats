@@ -1,11 +1,11 @@
-//! Main entry point for SommelierApi
+//! Main entry point for SommStats
 
 #![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 
-use sommelier_api::application::APP;
+use sommstats::application::APP;
 
-/// Boot SommelierApi
+/// Boot SommStats
 fn main() {
     abscissa_core::boot(&APP);
 }

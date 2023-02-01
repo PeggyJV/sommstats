@@ -1,11 +1,11 @@
-//! SommelierApi Abscissa Application
+//! SommStats Abscissa Application
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{HashMap},
     sync::Arc,
 };
 
-use crate::{commands::EntryPoint, config::SommelierApiConfig};
+use crate::{commands::EntryPoint, config::SommStatsConfig};
 use abscissa_core::{
     application::{self, AppCell},
     config::{self, CfgCell},
@@ -27,13 +27,13 @@ lazy_static! {
 }
 
 /// Application state
-pub static APP: AppCell<SommelierApiApp> = AppCell::new();
+pub static APP: AppCell<SommStatsApp> = AppCell::new();
 
-/// SommelierApi Application
+/// SommStats Application
 #[derive(Debug)]
-pub struct SommelierApiApp {
+pub struct SommStatsApp {
     /// Application configuration.
-    config: CfgCell<SommelierApiConfig>,
+    config: CfgCell<SommStatsConfig>,
 
     /// Application state.
     state: application::State<Self>,
@@ -43,7 +43,7 @@ pub struct SommelierApiApp {
 ///
 /// By default no configuration is loaded, and the framework state is
 /// initialized to a default, empty state (no components, threads, etc).
-impl Default for SommelierApiApp {
+impl Default for SommStatsApp {
     fn default() -> Self {
         Self {
             config: CfgCell::default(),
@@ -52,18 +52,18 @@ impl Default for SommelierApiApp {
     }
 }
 
-impl Application for SommelierApiApp {
+impl Application for SommStatsApp {
     /// Entrypoint command for this application.
     type Cmd = EntryPoint;
 
     /// Application configuration.
-    type Cfg = SommelierApiConfig;
+    type Cfg = SommStatsConfig;
 
     /// Paths to resources within the application.
     type Paths = StandardPaths;
 
     /// Accessor for application configuration.
-    fn config(&self) -> config::Reader<SommelierApiConfig> {
+    fn config(&self) -> config::Reader<SommStatsConfig> {
         self.config.read()
     }
 

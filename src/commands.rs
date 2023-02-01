@@ -1,4 +1,4 @@
-//! SommelierApi Subcommands
+//! SommStats Subcommands
 //!
 //! This is where you specify the subcommands of your application.
 //!
@@ -13,18 +13,18 @@
 mod start;
 
 use self::start::StartCmd;
-use crate::config::SommelierApiConfig;
+use crate::config::SommStatsConfig;
 use abscissa_core::{Command, Configurable, FrameworkError, Runnable};
 use clap::Parser;
 use std::path::PathBuf;
 
-/// SommelierApi Configuration Filename
+/// SommStats Configuration Filename
 pub const CONFIG_FILE: &str = "sommelier_api.toml";
 
-/// SommelierApi Subcommands
+/// SommStats Subcommands
 /// Subcommands need to be listed in an enum.
 #[derive(Command, Debug, Parser, Runnable)]
-pub enum SommelierApiCmd {
+pub enum SommStatsCmd {
     /// The `start` subcommand
     Start(StartCmd),
 }
@@ -34,7 +34,7 @@ pub enum SommelierApiCmd {
 #[clap(author, about, version)]
 pub struct EntryPoint {
     #[clap(subcommand)]
-    cmd: SommelierApiCmd,
+    cmd: SommStatsCmd,
 
     /// Enable verbose logging
     #[clap(short, long)]
@@ -52,7 +52,7 @@ impl Runnable for EntryPoint {
 }
 
 /// This trait allows you to define how application configuration is loaded.
-impl Configurable<SommelierApiConfig> for EntryPoint {
+impl Configurable<SommStatsConfig> for EntryPoint {
     /// Location of the configuration file
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
@@ -78,8 +78,8 @@ impl Configurable<SommelierApiConfig> for EntryPoint {
     /// settings from command-line options.
     fn process_config(
         &self,
-        config: SommelierApiConfig,
-    ) -> Result<SommelierApiConfig, FrameworkError> {
+        config: SommStatsConfig,
+    ) -> Result<SommStatsConfig, FrameworkError> {
         match &self.cmd {
             // If you don't need special overrides for some
             // subcommands, you can just use a catch all

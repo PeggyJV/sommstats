@@ -1,6 +1,6 @@
-# SommelierApi
+# sommstats
 
-SommelierApi is an application.
+An API for Sommelier statistics
 
 ## Getting Started
 
