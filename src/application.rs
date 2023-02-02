@@ -1,9 +1,6 @@
 //! SommStats Abscissa Application
 
-use std::{
-    collections::{HashMap},
-    sync::Arc,
-};
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{commands::EntryPoint, config::SommStatsConfig};
 use abscissa_core::{
@@ -102,7 +99,16 @@ impl Application for SommStatsApp {
         if command.verbose {
             trace::Config::verbose()
         } else {
-            trace::Config::default()
+            match std::env::var("RUST_LOG") {
+                Ok(val) => {
+                    if !val.is_empty() {
+                        val.into()
+                    } else {
+                        trace::Config::default()
+                    }
+                }
+                Err(_) => trace::Config::default(),
+            }
         }
     }
 }

@@ -22,4 +22,4 @@ pub mod config;
 pub mod error;
 pub mod prelude;
 pub mod query;
-pub mod snapshot;
+pub mod server;

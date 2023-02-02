@@ -19,7 +19,7 @@
 )]
 
 use abscissa_core::testing::prelude::*;
-// use sommelier_api::config::SommelierApiConfig;
+// use sommelier_api::config::SommStatsConfig;
 use once_cell::sync::Lazy;
 
 /// Executes your application binary via `cargo run`.
@@ -30,7 +30,7 @@ use once_cell::sync::Lazy;
 /// invocations as `cargo test` executes tests in parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| CmdRunner::default());
 
-/// Use `SommelierApiConfig::default()` value if no config or args
+/// Use `SommStatsConfig::default()` value if no config or args
 #[test]
 fn start_no_args() {
     let mut runner = RUNNER.clone();
@@ -52,23 +52,10 @@ fn start_with_args() {
     cmd.wait().unwrap().expect_success();
 }
 
-/// Use configured value
-// #[test]
-// fn start_with_config_no_args() {
-//     let mut config = SommelierApiConfig::default();
-//     config.hello.recipient = "configured recipient".to_owned();
-//     let expected_line = format!("Hello, {}!", &config.hello.recipient);
-
-//     let mut runner = RUNNER.clone();
-//     let mut cmd = runner.config(&config).arg("start").capture_stdout().run();
-//     cmd.stdout().expect_line(&expected_line);
-//     cmd.wait().unwrap().expect_success();
-// }
-
 /// Override configured value with command-line argument
 // #[test]
 // fn start_with_config_and_args() {
-//     let mut config = SommelierApiConfig::default();
+//     let mut config = SommStatsConfig::default();
 //     config.hello.recipient = "configured recipient".to_owned();
 
 //     let mut runner = RUNNER.clone();

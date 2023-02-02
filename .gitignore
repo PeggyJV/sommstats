@@ -1,4 +1,4 @@
 /target
 **/*.rs.bk
 config.toml
-snapshot.json
+sommstats_snapshot.json
