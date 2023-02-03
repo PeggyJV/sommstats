@@ -74,7 +74,7 @@ impl Default for ServerSection {
     fn default() -> Self {
         Self {
             address: String::from("0.0.0.0"),
-            port: 3000,
+            port: 8080,
         }
     }
 }

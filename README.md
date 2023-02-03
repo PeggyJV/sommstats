@@ -40,6 +40,7 @@ Right now there is only one endpoint `/api/v1/circulating-supply`. If any balanc
 {"circulating_supply": 1234567890}
 ```
 
+Units are `usomm`
 
 ## Config
 
@@ -53,7 +54,7 @@ failed_query_retries = 3
 
 [server]
 address = "0.0.0.0"
-port = 3000
+port = 8080
 
 [cache]
 # how frequently the cache should refresh the respective balance(s)
