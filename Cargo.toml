@@ -8,14 +8,15 @@ edition = "2021"
 clap = "3"
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
-ocular = { path = "../ocular" }
-# ocular = { git = "https://github.com/peggyjv/ocular", branch = "v1.0.0" }
+ocular = "1.0.0-beta-0.0.1"
 eyre = "0.6.8"
 abscissa_tokio = "0.6.0"
 lazy_static = "1.4.0"
 time = { version = "0.3", features = ["serde"] }
 serde_json = "1.0.91"
 axum = "0.6.4"
+assay = "0.1.1"
+tokio-retry = "0.3.0"
 
 [dependencies.abscissa_core]
 version = "0.6.0"

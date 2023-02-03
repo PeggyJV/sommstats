@@ -1242,7 +1242,9 @@ dependencies = [
 
 [[package]]
 name = "ocular"
-version = "1.0.0-beta"
+version = "1.0.0-beta-0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a127b98e53db82fc66c4cda4c297bf8340c745226031fe59638261ef01124b1f"
 dependencies = [
  "assay",
  "async-trait",
@@ -1969,6 +1971,7 @@ version = "0.1.0"
 dependencies = [
  "abscissa_core",
  "abscissa_tokio",
+ "assay",
  "axum",
  "clap",
  "eyre",
@@ -1979,6 +1982,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "time",
+ "tokio-retry",
 ]
 
 [[package]]
@@ -2271,6 +2275,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "tokio-retry"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f57eb36ecbe0fc510036adff84824dd3c24bb781e21bfa67b69d556aa85214f"
+dependencies = [
+ "pin-project",
+ "rand",
+ "tokio",
 ]
 
 [[package]]

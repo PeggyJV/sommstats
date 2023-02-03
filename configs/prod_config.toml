@@ -1,0 +1,18 @@
+[grpc]
+endpoints = [
+    "https://sommelier-grpc.polkachu.com:14190",
+    "https://sommelier-grpc.lavenderfive.com:443",
+    "https://grpc.somm.bh.rocks:443/",
+    "https://sommelier.archive.strange.love:9090"
+]
+failed_query_retries = 0
+
+[server]
+address = "0.0.0.0"
+port = 443
+
+[cache]
+community_pool_update_period = 3600
+staking_update_period = 3600
+vesting_update_period = 3600
+foundation_wallet_update_period = 3600

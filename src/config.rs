@@ -6,15 +6,28 @@
 
 use serde::{Deserialize, Serialize};
 
-const DAY_IN_SECS: u64 = 86400;
+const HOUR_IN_SECS: u64 = 3600;
 pub const DEFAULT_SNAPSHOT_FILE: &str = "sommstats_snapshot.json";
+
+pub fn validate(config: &SommStatsConfig) {
+    if config.grpc.endpoints.is_empty() {
+        panic!("No gRPC endpoints specified in config");
+    }
+    if config.cache.community_pool_update_period == 0
+        || config.cache.staking_update_period == 0
+        || config.cache.foundation_wallet_update_period == 0
+        || config.cache.vesting_update_period == 0
+    {
+        panic!("update periods must be greater than 0");
+    }
+}
 
 /// SommStats Configuration
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct SommStatsConfig {
     /// An example configuration section
-    pub grpc: String,
+    pub grpc: GrpcSection,
     pub server: ServerSection,
     pub cache: CacheSection,
 }
@@ -26,9 +39,25 @@ pub struct SommStatsConfig {
 impl Default for SommStatsConfig {
     fn default() -> Self {
         Self {
-            grpc: String::default(),
+            grpc: GrpcSection::default(),
             server: ServerSection::default(),
             cache: CacheSection::default(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct GrpcSection {
+    pub endpoints: Vec<String>,
+    pub failed_query_retries: u32,
+}
+
+impl Default for GrpcSection {
+    fn default() -> Self {
+        GrpcSection {
+            endpoints: Vec::new(),
+            failed_query_retries: 3,
         }
     }
 }
@@ -44,7 +73,7 @@ pub struct ServerSection {
 impl Default for ServerSection {
     fn default() -> Self {
         Self {
-            address: String::from("127.0.0.1"),
+            address: String::from("0.0.0.0"),
             port: 3000,
         }
     }
@@ -62,10 +91,10 @@ pub struct CacheSection {
 impl Default for CacheSection {
     fn default() -> Self {
         Self {
-            community_pool_update_period: DAY_IN_SECS,
-            staking_update_period: DAY_IN_SECS,
-            vesting_update_period: DAY_IN_SECS,
-            foundation_wallet_update_period: DAY_IN_SECS,
+            community_pool_update_period: HOUR_IN_SECS,
+            staking_update_period: HOUR_IN_SECS,
+            vesting_update_period: HOUR_IN_SECS,
+            foundation_wallet_update_period: HOUR_IN_SECS,
         }
     }
 }

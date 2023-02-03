@@ -2,7 +2,7 @@
 
 use std::net::SocketAddr;
 
-use crate::config::SommStatsConfig;
+use crate::config::{self, SommStatsConfig};
 /// App-local prelude includes `app_reader()`/`app_writer()`/`app_config()`
 /// accessors along with logging macros. Customize as you see fit.
 use crate::prelude::*;
@@ -29,6 +29,8 @@ impl Runnable for StartCmd {
     /// Start the application.
     fn run(&self) {
         let config = APP.config();
+        config::validate(&config);
+
         abscissa_tokio::run(&APP, async {
             let addr: SocketAddr = format!("{}:{}", config.server.address, config.server.port)
                 .parse()
@@ -52,10 +54,7 @@ impl Override<SommStatsConfig> for StartCmd {
     // Process the given command line options, overriding settings from
     // a configuration file using explicit flags taken from command-line
     // arguments.
-    fn override_config(
-        &self,
-        config: SommStatsConfig,
-    ) -> Result<SommStatsConfig, FrameworkError> {
+    fn override_config(&self, config: SommStatsConfig) -> Result<SommStatsConfig, FrameworkError> {
         Ok(config)
     }
 }
