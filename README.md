@@ -59,7 +59,6 @@ port = 8080
 [cache]
 # how frequently the cache should refresh the respective balance(s)
 community_pool_update_period = 3600
-staking_update_period = 3600
 vesting_update_period = 3600
 foundation_wallet_update_period = 3600
 ```
