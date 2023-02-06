@@ -38,8 +38,6 @@ const PERIODIC_VESTING_ACCOUNT_TYPE_URL: &str = "/cosmos.vesting.v1beta1.Periodi
 const DELAYED_VESTING_ACCOUNT_TYPE_URL: &str = "/cosmos.vesting.v1beta1.DelayedVestingAccount";
 
 pub const COMMUNITY_POOL_KEY: &str = "communitypool";
-// Includes bonded and unbonded stake (rewards/commission)
-pub const STAKING_BALANCE_KEY: &str = "staking";
 
 /// Updates the cached total usomm balance of the foundation wallet
 pub async fn update_foundation_balance(endpoint: &str) -> Result<()> {
@@ -134,59 +132,6 @@ pub async fn poll_community_pool_balance() -> Result<()> {
                 }
             }
             bail!("failed to query community pool balance from all endpoints");
-        })
-        .await
-        .unwrap_or_else(|e| error!("{:?}", e));
-        tokio::time::sleep(std::time::Duration::from_secs(period)).await;
-    }
-}
-
-/// Updates the cached total usomm balance in the staking module. This includes both bonded
-/// (staked/delegated) and unbonded (commission/rewards) funds.
-pub async fn update_staking_balance(endpoint: &str) -> Result<()> {
-    debug!("updating staking pool balance");
-    match QueryClient::new(endpoint)?.pool().await {
-        Ok(r) => {
-            let pool = r.pool;
-            let bonded: u128 = pool.clone().unwrap().bonded_tokens.parse()?;
-            let unbonded: u128 = pool.unwrap().not_bonded_tokens.parse()?;
-            let balance = bonded + unbonded;
-            debug!("staking balance: {}usomm", balance);
-            update_balance(STAKING_BALANCE_KEY, balance).await;
-            return Ok(());
-        }
-        Err(e) => {
-            bail!(
-                "error querying staking pool from endpoint {}: {:?}",
-                endpoint,
-                e
-            );
-        }
-    }
-}
-
-/// Periodically updates the cached staking pool balance
-pub async fn poll_staking_balance() -> Result<()> {
-    let period = APP.config().cache.staking_update_period;
-    debug!("updating staking pool balance every {} seconds", period);
-
-    let config = APP.config();
-    // jittered retry with exponential backoff
-    let retry_strategy = ExponentialBackoff::from_millis(500)
-        .map(jitter)
-        .take(config.grpc.failed_query_retries as usize);
-    loop {
-        Retry::spawn(retry_strategy.clone(), || async {
-            for endpoint in config.grpc.endpoints.iter() {
-                match update_staking_balance(&endpoint).await {
-                    Ok(_) => return Ok(()),
-                    Err(e) => {
-                        warn!("{:?}", e);
-                        continue;
-                    }
-                }
-            }
-            bail!("failed to query staking pool balance from all endpoints");
         })
         .await
         .unwrap_or_else(|e| error!("{:?}", e));

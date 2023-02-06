@@ -14,7 +14,6 @@ pub fn validate(config: &SommStatsConfig) {
         panic!("No gRPC endpoints specified in config");
     }
     if config.cache.community_pool_update_period == 0
-        || config.cache.staking_update_period == 0
         || config.cache.foundation_wallet_update_period == 0
         || config.cache.vesting_update_period == 0
     {
@@ -83,7 +82,6 @@ impl Default for ServerSection {
 #[serde(default, deny_unknown_fields)]
 pub struct CacheSection {
     pub community_pool_update_period: u64,
-    pub staking_update_period: u64,
     pub vesting_update_period: u64,
     pub foundation_wallet_update_period: u64,
 }
@@ -92,7 +90,6 @@ impl Default for CacheSection {
     fn default() -> Self {
         Self {
             community_pool_update_period: HOUR_IN_SECS,
-            staking_update_period: HOUR_IN_SECS,
             vesting_update_period: HOUR_IN_SECS,
             foundation_wallet_update_period: HOUR_IN_SECS,
         }

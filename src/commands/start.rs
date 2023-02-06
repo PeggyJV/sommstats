@@ -7,7 +7,7 @@ use crate::config::{self, SommStatsConfig};
 /// accessors along with logging macros. Customize as you see fit.
 use crate::prelude::*;
 use crate::query::poll_vesting_balance;
-use crate::query::{poll_community_pool_balance, poll_foundation_balance, poll_staking_balance};
+use crate::query::{poll_community_pool_balance, poll_foundation_balance};
 use crate::server::listen;
 
 use abscissa_core::config::Override;
@@ -39,7 +39,6 @@ impl Runnable for StartCmd {
                 poll_vesting_balance(),
                 poll_foundation_balance(),
                 poll_community_pool_balance(),
-                poll_staking_balance(),
                 listen(addr)
             );
         })

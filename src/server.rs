@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     accounting::{FOUNDATION_ADDRESS, TOTAL_USOMM_SUPPLY, VESTING_ACCOUNTS},
     application::BALANCES,
-    query::{COMMUNITY_POOL_KEY, STAKING_BALANCE_KEY},
+    query::COMMUNITY_POOL_KEY,
 };
 
 pub async fn listen(addr: SocketAddr) -> Result<()> {
@@ -42,7 +42,6 @@ pub async fn get_circulating_supply() -> Response {
     // which would make our calculation overshoot the actual circulating supply.
     let mut less = vec![
         (FOUNDATION_ADDRESS, balances.get(FOUNDATION_ADDRESS)),
-        (STAKING_BALANCE_KEY, balances.get(STAKING_BALANCE_KEY)),
         (COMMUNITY_POOL_KEY, balances.get(COMMUNITY_POOL_KEY)),
     ];
     VESTING_ACCOUNTS

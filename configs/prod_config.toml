@@ -13,6 +13,5 @@ port = 443
 
 [cache]
 community_pool_update_period = 3600
-staking_update_period = 3600
 vesting_update_period = 3600
 foundation_wallet_update_period = 3600
