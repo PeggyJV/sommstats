@@ -20,7 +20,7 @@ lazy_static! {
     /// vesting accounts, or a designation such as "communitypool" or "bonded" in the case of
     /// the community pool and total bonded token balances. Addresses that are not the foundation
     /// address can be safely assumed to be vesting addresses.
-    pub static ref BALANCES: Cache<HashMap<String, u128>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref BALANCES: Cache<HashMap<String, u64>> = Arc::new(Mutex::new(HashMap::new()));
 }
 
 /// Application state

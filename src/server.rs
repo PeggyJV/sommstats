@@ -30,7 +30,7 @@ pub async fn listen(addr: SocketAddr) -> Result<()> {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CirculatingSupplyResponse {
-    pub circulating_supply: u128,
+    pub circulating_supply: u64,
 }
 
 /// Calculates and returns the circulating supply. If one or more balance is not populated in the cache,
@@ -56,7 +56,7 @@ pub async fn get_circulating_supply() -> Response {
         return StatusCode::SERVICE_UNAVAILABLE.into_response();
     }
 
-    let circulating_supply = TOTAL_USOMM_SUPPLY - less.iter().map(|v| v.1.unwrap()).sum::<u128>();
+    let circulating_supply = TOTAL_USOMM_SUPPLY - less.iter().map(|v| v.1.unwrap()).sum::<u64>();
     let body = serde_json::to_string(&CirculatingSupplyResponse { circulating_supply });
     if let Err(e) = body {
         error!("error serializing circulating supply response: {:?}", e);
