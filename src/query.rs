@@ -1,11 +1,12 @@
 use abscissa_core::{
     tracing::{
         debug,
-        log::{error, warn},
+        log::{error, info, warn},
     },
     Application,
 };
 use abscissa_tokio::tokio;
+use chrono::Utc;
 use eyre::{bail, Result};
 use ocular::{
     cosmrs::proto::{
@@ -38,30 +39,17 @@ const DELAYED_VESTING_ACCOUNT_TYPE_URL: &str = "/cosmos.vesting.v1beta1.DelayedV
 
 pub const COMMUNITY_POOL_KEY: &str = "communitypool";
 
-/// Gets the latest block height
-pub async fn get_current_block_height(qclient: &mut QueryClient) -> Result<i64> {
-    // TODO: handle the None conditions and add retries
-    Ok(qclient
-        .latest_block()
-        .await?
-        .block
-        .unwrap()
-        .header
-        .unwrap()
-        .height)
-}
-
 /// Updates the cached total usomm balance of the foundation wallet
 pub async fn update_foundation_balance(endpoint: &str) -> Result<()> {
-    debug!("updating foundation wallet balance");
     match QueryClient::new(endpoint)?
         .balance(FOUNDATION_ADDRESS, USOMM)
         .await
     {
         Ok(b) => {
             let balance = b.balance.unwrap().amount as u64;
-            debug!("foundation wallet balance: {}usomm", balance);
             update_balance(FOUNDATION_ADDRESS, balance).await;
+            info!("foundation wallet balance updated: {}usomm", balance);
+
             Ok(())
         }
         Err(e) => {
@@ -84,13 +72,17 @@ pub async fn poll_foundation_balance() -> Result<()> {
         .map(jitter)
         .take(config.grpc.failed_query_retries as usize);
     loop {
+        debug!("updating foundation wallet balance");
         Retry::spawn(retry_strategy.clone(), || async {
             for endpoint in config.grpc.endpoints.iter() {
                 if let Err(e) = update_foundation_balance(endpoint).await {
                     warn!("{e:?}");
                     continue;
                 }
+
+                return Ok(());
             }
+
             bail!("failed to query foundation wallet balance from all endpoints");
         })
         .await
@@ -101,12 +93,12 @@ pub async fn poll_foundation_balance() -> Result<()> {
 
 /// Updates the cached total usomm balance in the community pool
 pub async fn update_community_pool_balance(endpoint: &str) -> Result<()> {
-    debug!("updating community pool balance");
     match QueryClient::new(endpoint)?.community_pool().await {
         Ok(r) => {
             let balance = get_dec_usomm_amount(r);
-            debug!("community pool balance: {}usomm", balance);
             update_balance(COMMUNITY_POOL_KEY, balance).await;
+            info!("community pool balance updated: {}usomm", balance);
+
             Ok(())
         }
         Err(e) => {
@@ -130,13 +122,17 @@ pub async fn poll_community_pool_balance() -> Result<()> {
         .map(jitter)
         .take(config.grpc.failed_query_retries as usize);
     loop {
+        debug!("updating community pool balance");
         Retry::spawn(retry_strategy.clone(), || async {
             for endpoint in config.grpc.endpoints.iter() {
                 if let Err(e) = update_community_pool_balance(endpoint).await {
                     warn!("{e:?}");
                     continue;
                 }
+
+                return Ok(());
             }
+
             bail!("failed to query community pool balance from all endpoints");
         })
         .await
@@ -150,14 +146,22 @@ pub async fn poll_community_pool_balance() -> Result<()> {
 pub async fn query_vesting_balance(endpoint: &str, address: &str) -> Result<u64> {
     let mut qclient = QueryClient::new(endpoint)?;
     let res = qclient.account_raw(address).await?;
-    let current_time = get_current_block_height(&mut qclient).await?;
+    let current_time = Utc::now().timestamp();
     let type_url = &res.type_url;
     let value: &[u8] = &res.value;
+
+    debug!("current time: {current_time}");
 
     // get the still-vesting (locked) balance of the account
     let locked_balance = match type_url.as_str() {
         CONTINUOUS_VESTING_ACCOUNT_TYPE_URL => {
             let account = ContinuousVestingAccount::decode(value)?;
+
+            debug!(
+                "continuous account start time: {} end time: {}",
+                account.start_time,
+                account.base_vesting_account.clone().unwrap().end_time
+            );
             if account.start_time > current_time {
                 0_u64
             } else {
@@ -173,12 +177,22 @@ pub async fn query_vesting_balance(endpoint: &str, address: &str) -> Result<u64>
             let account = PeriodicVestingAccount::decode(value)?;
             let periods = account.vesting_periods;
             let mut locked_balance: u64 = 0;
+
+            debug!("periodic account start time: {}", account.start_time);
+            let mut start_time = account.start_time;
             for period in periods {
-                locked_balance += if current_time > account.start_time + period.length {
+                debug!(
+                    "period end time: {}, period length: {}",
+                    start_time + period.length,
+                    period.length
+                );
+                locked_balance += if current_time > start_time + period.length {
                     0
                 } else {
                     get_usomm_amount(period.amount)
-                }
+                };
+
+                start_time += period.length;
             }
 
             locked_balance
@@ -186,11 +200,16 @@ pub async fn query_vesting_balance(endpoint: &str, address: &str) -> Result<u64>
         DELAYED_VESTING_ACCOUNT_TYPE_URL => {
             let account = DelayedVestingAccount::decode(value)?;
             let base = account.base_vesting_account.unwrap();
-            if current_time > base.end_time {
+
+            debug!("delayed vesting account end time: {}", base.end_time);
+            let locked_balance = if current_time > base.end_time {
                 0
             } else {
                 get_usomm_amount(base.original_vesting)
-            }
+            };
+
+            debug!("delayed vesting account locked balance {locked_balance}");
+            locked_balance
         }
         _ => {
             bail!(
@@ -200,6 +219,8 @@ pub async fn query_vesting_balance(endpoint: &str, address: &str) -> Result<u64>
             );
         }
     };
+
+    info!("locked balance for {address} is {locked_balance}");
 
     // so we can remove the address from the query list when it's done vesting
     if locked_balance == 0 {
