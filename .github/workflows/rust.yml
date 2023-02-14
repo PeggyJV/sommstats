@@ -10,7 +10,6 @@ env:
 
 jobs:
   fmt:
-    name: check formatting
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout branch
@@ -54,7 +53,7 @@ jobs:
       - name: Add clippy
         run: rustup component add clippy
       - name: Run clippy
-        run: cargo clippy -p steward -- -D warnings --no-deps
+        run: cargo clippy -- -D warnings --no-deps
   
   build:
     runs-on: ubuntu-20.04
