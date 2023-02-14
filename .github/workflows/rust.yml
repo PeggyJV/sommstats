@@ -1,0 +1,40 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt-lint-build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Set up Rust caches
+        uses: actions/cache@v3
+        id: rust-cache
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Add rustfmt
+        run: rustup component add rustfmt
+      - name: Run fmt
+        run: cargo fmt --all -- --check
+      - name: Add clippy
+        run: rustup component add clippy
+      - name: Run clippy
+        run: cargo clippy -- -D warnings --no-deps
+      - name: Run cargo build
+        run: cargo build
+
