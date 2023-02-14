@@ -20,7 +20,9 @@ use crate::{
 };
 
 pub async fn listen(addr: SocketAddr) -> Result<()> {
-    let app = Router::new().route("/api/v1/circulating-supply", get(get_circulating_supply));
+    let app = Router::new()
+        .route("/", get(|| async { StatusCode::OK }))
+        .route("/v1/circulating-supply", get(get_circulating_supply));
 
     info!("listening on {}", addr);
     Ok(axum::Server::bind(&addr)
