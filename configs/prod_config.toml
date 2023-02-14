@@ -5,7 +5,7 @@ endpoints = [
     "https://grpc.somm.bh.rocks:443/",
     "https://sommelier.archive.strange.love:9090"
 ]
-failed_query_retries = 0
+failed_query_retries = 2
 
 [server]
 address = "0.0.0.0"
