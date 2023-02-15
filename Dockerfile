@@ -24,11 +24,9 @@ COPY . .
 # Copy over the cached dependencies
 COPY --from=cacher /app/target target
 COPY --from=cacher /usr/local/cargo /usr/local/cargo
-RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo build --target x86_64-unknown-linux-musl --release
+RUN cargo install --path .
 
-FROM alpine:3.17.2 as runtime
-WORKDIR /app
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/sommstats /usr/local/bin
+FROM debian:bullseye-slim
+COPY --from=builder /usr/local/cargo/bin/sommstats /usr/local/bin/sommstats
 COPY ./configs/prod_config.toml ./config.toml
 CMD sommstats -c config.toml start

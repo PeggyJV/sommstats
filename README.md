@@ -11,8 +11,6 @@ The minimal configuration needed to run is a list of grpc endpoints:
 [grpc]
 endpoints = [
     "https://sommelier-grpc.polkachu.com:14190",
-    "https://sommelier-grpc.lavenderfive.com:443",
-    "https://grpc.somm.bh.rocks:443/",
     "https://sommelier.archive.strange.love:9090"
 ]
 ```
@@ -23,24 +21,16 @@ To run with cargo:
 cargo run -- -c <config toml path> start
 ```
 
-To build and run container locally:
-
-```bash
-# cwd is root of this directory
-make
-docker run -p 3000:443 -it sommstats:prebuilt
-```
-
 
 ## API
 
-Right now there is only one endpoint `/api/v1/circulating-supply`. If any balances have not been loaded into the cache, a 503 will be returned. Otherwise a response of the following form will be returned:
+Right now there is only one functioning endpoint `/v1/circulating-supply`. A request to `/` will return an empty response with a 200 status code. If any balances have not been loaded into the cache (i.e. the service is starting up), a 503 will be returned. Otherwise, a response of the following form will be returned:
 
 ```json
 {"circulating_supply": 1234567890}
 ```
 
-Units are `usomm`
+Units are `usomm`. Divide by 1,000,000 to arrive at the total SOMM circulating supply.
 
 ## Config
 
