@@ -59,18 +59,16 @@ pub async fn get_circulating_supply() -> Response {
     }
 
     let circulating_supply = TOTAL_USOMM_SUPPLY - less.iter().map(|v| v.1.unwrap()).sum::<u64>();
-    let body = serde_json::to_string(&CirculatingSupplyResponse { circulating_supply });
-    if let Err(e) = body {
-        error!("error serializing circulating supply response: {:?}", e);
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-    }
 
-    json_response(body.unwrap())
+    // convert to SOMM
+    let circulating_supply = circulating_supply / 1_000_000;
+
+    response(circulating_supply.to_string())
 }
 
-pub fn json_response(body: String) -> Response {
+pub fn response(body: String) -> Response {
     Response::builder()
-        .header("Content-Type", "application/json")
+        .header("Content-Type", "text/plain")
         .body(body)
         .map_err(|e| {
             error!("error building response: {:?}", e);
