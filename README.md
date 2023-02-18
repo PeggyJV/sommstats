@@ -24,13 +24,13 @@ cargo run -- -c <config toml path> start
 
 ## API
 
-Right now there is only one functioning endpoint `/v1/circulating-supply`. A request to `/` will return an empty response with a 200 status code. If any balances have not been loaded into the cache (i.e. the service is starting up), a 503 will be returned. Otherwise, a response of the following form will be returned:
+Right now there is only one functioning endpoint `/v1/circulating-supply`. A request to `/` will return an empty response with a 200 status code. If any balances have not been loaded into the cache (i.e. the service is starting up), a 503 will be returned. Otherwise, a simple response with a body of the circulating supply in SOMM will be returned:
 
-```json
-{"circulating_supply": 1234567890}
+```
+1234567890
 ```
 
-Units are `usomm`. Divide by 1,000,000 to arrive at the total SOMM circulating supply.
+Units are in `SOMM`, no conversion is needed.
 
 ## Config
 
