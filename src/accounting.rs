@@ -1,5 +1,6 @@
 pub(crate) const TOTAL_USOMM_SUPPLY: u64 = 499999979900000;
 pub(crate) const FOUNDATION_ADDRESS: &str = "somm1ymy6sx49d538gtdw2y6jnqwhcv3v9de8c92rql";
+pub(crate) const FOUNDATION_ADDRESS_2: &str = "somm1x52ufr8f6mheac4z43w0tl0e89lzxryude70t6";
 pub(crate) const VESTING_ACCOUNTS: [&str; 30] = [
     "somm1p0xd9dwqztlua5vjl686alvzn3fng5hacu5r04",
     "somm1pknp6pynqn3y59s6vxg7cx5wu6ylek6qs47t5d",

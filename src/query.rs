@@ -26,7 +26,7 @@ use tokio_retry::{
 };
 
 use crate::{
-    accounting::{FOUNDATION_ADDRESS, VESTING_ACCOUNTS},
+    accounting::{FOUNDATION_ADDRESS, FOUNDATION_ADDRESS_2, VESTING_ACCOUNTS},
     application::{BALANCES, USOMM},
     prelude::APP,
 };
@@ -53,7 +53,34 @@ pub async fn update_foundation_balance(endpoint: &str) -> Result<()> {
             Ok(())
         }
         Err(e) => {
-            bail!("error querying balance from endpoint {}: {:?}", endpoint, e);
+            bail!(
+                "error querying foundation wallet balance from endpoint {}: {:?}",
+                endpoint,
+                e
+            );
+        }
+    }
+}
+
+/// Updates the cached total usomm balance of the foundation wallet
+pub async fn update_foundation_balance_2(endpoint: &str) -> Result<()> {
+    match QueryClient::new(endpoint)?
+        .balance(FOUNDATION_ADDRESS_2, USOMM)
+        .await
+    {
+        Ok(b) => {
+            let balance = b.balance.unwrap().amount as u64;
+            update_balance(FOUNDATION_ADDRESS_2, balance).await;
+            info!("foundation wallet 2 balance updated: {}usomm", balance);
+
+            Ok(())
+        }
+        Err(e) => {
+            bail!(
+                "error querying foundation wallet 2 balance from endpoint {}: {:?}",
+                endpoint,
+                e
+            );
         }
     }
 }
@@ -76,6 +103,11 @@ pub async fn poll_foundation_balance() -> Result<()> {
         Retry::spawn(retry_strategy.clone(), || async {
             for endpoint in config.grpc.endpoints.iter() {
                 if let Err(e) = update_foundation_balance(endpoint).await {
+                    warn!("{e:?}");
+                    continue;
+                }
+
+                if let Err(e) = update_foundation_balance_2(endpoint).await {
                     warn!("{e:?}");
                     continue;
                 }
