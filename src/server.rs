@@ -14,7 +14,7 @@ use eyre::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    accounting::{FOUNDATION_ADDRESS, TOTAL_USOMM_SUPPLY, VESTING_ACCOUNTS},
+    accounting::{FOUNDATION_ADDRESS, FOUNDATION_ADDRESS_2, TOTAL_USOMM_SUPPLY, VESTING_ACCOUNTS},
     application::BALANCES,
     query::COMMUNITY_POOL_KEY,
 };
@@ -44,6 +44,7 @@ pub async fn get_circulating_supply() -> Response {
     // which would make our calculation overshoot the actual circulating supply.
     let mut less = vec![
         (FOUNDATION_ADDRESS, balances.get(FOUNDATION_ADDRESS)),
+        (FOUNDATION_ADDRESS_2, balances.get(FOUNDATION_ADDRESS_2)),
         (COMMUNITY_POOL_KEY, balances.get(COMMUNITY_POOL_KEY)),
     ];
     VESTING_ACCOUNTS
