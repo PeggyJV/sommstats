@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{commands::EntryPoint, config::SommStatsConfig};
+use crate::{auction::Price, commands::EntryPoint, config::SommStatsConfig};
 use abscissa_core::{
     application::{self, AppCell},
     config::{self, CfgCell},
@@ -10,12 +10,18 @@ use abscissa_core::{
 };
 use abscissa_tokio::tokio::sync::Mutex;
 use lazy_static::lazy_static;
+use sommelier_auction::auction::{Auction, Bid};
 
 pub type Cache<T> = Arc<Mutex<T>>;
 
 pub const USOMM: &str = "usomm";
 
 lazy_static! {
+    pub static ref ACTIVE_AUCTIONS: Cache<HashMap<u64, Auction>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref ENDED_AUCTIONS: Cache<HashMap<u64, Auction>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref BIDS_BY_AUCTION: Cache<HashMap<u64, Vec<Bid>>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref PRICE_BY_AUCTION: Cache<HashMap<u64, Price>> = Arc::new(Mutex::new(HashMap::new()));
+
     /// Balances cache, where each key is the ID of the balance, either an address in the case of
     /// vesting accounts, or a designation such as "communitypool" or "bonded" in the case of
     /// the community pool and total bonded token balances. Addresses that are not the foundation

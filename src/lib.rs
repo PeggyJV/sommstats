@@ -17,6 +17,7 @@
 
 pub mod accounting;
 pub mod application;
+pub mod auction;
 pub mod commands;
 pub mod config;
 pub mod error;
