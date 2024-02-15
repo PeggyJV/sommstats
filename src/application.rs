@@ -17,10 +17,10 @@ pub type Cache<T> = Arc<Mutex<T>>;
 pub const USOMM: &str = "usomm";
 
 lazy_static! {
-    pub static ref ACTIVE_AUCTIONS: Cache<HashMap<u64, Auction>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref ENDED_AUCTIONS: Cache<HashMap<u64, Auction>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref BIDS_BY_AUCTION: Cache<HashMap<u64, Vec<Bid>>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref PRICE_BY_AUCTION: Cache<HashMap<u64, Price>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref ACTIVE_AUCTIONS: Cache<HashMap<u32, Auction>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref ENDED_AUCTIONS: Cache<HashMap<u32, Auction>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref BIDS_BY_ACTIVE_AUCTION: Cache<HashMap<u32, Vec<Bid>>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref PRICE_BY_AUCTION: Cache<HashMap<u32, Price>> = Arc::new(Mutex::new(HashMap::new()));
 
     /// Balances cache, where each key is the ID of the balance, either an address in the case of
     /// vesting accounts, or a designation such as "communitypool" or "bonded" in the case of

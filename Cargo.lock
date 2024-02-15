@@ -2159,7 +2159,7 @@ dependencies = [
 [[package]]
 name = "sommelier-auction"
 version = "0.1.0"
-source = "git+https://github.com/peggyjv/sommelier-auction-bot#4836bbe2a7802002c2c66425494d8f4fac040a5f"
+source = "git+https://github.com/peggyjv/sommelier-auction-bot#7e9f16b785887eef9ec681bd1dc2f805f0b3fc8e"
 dependencies = [
  "eyre",
  "lazy_static",
@@ -2173,7 +2173,7 @@ dependencies = [
 [[package]]
 name = "sommelier-auction-proto"
 version = "0.1.0"
-source = "git+https://github.com/peggyjv/sommelier-auction-bot#4836bbe2a7802002c2c66425494d8f4fac040a5f"
+source = "git+https://github.com/peggyjv/sommelier-auction-bot#7e9f16b785887eef9ec681bd1dc2f805f0b3fc8e"
 dependencies = [
  "bytes",
  "cosmos-sdk-proto 0.6.3",
