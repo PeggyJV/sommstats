@@ -2,25 +2,26 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{auction::Price, commands::EntryPoint, config::SommStatsConfig};
+use crate::{
+    auction::Auction, cache::ExpiringCache, commands::EntryPoint, config::SommStatsConfig,
+};
 use abscissa_core::{
     application::{self, AppCell},
     config::{self, CfgCell},
     trace, Application, FrameworkError, StandardPaths,
 };
-use abscissa_tokio::tokio::sync::Mutex;
+use abscissa_tokio::tokio::sync::{Mutex, RwLock};
 use lazy_static::lazy_static;
-use sommelier_auction::auction::{Auction, Bid};
+use sommelier_auction::auction::Bid;
 
 pub type Cache<T> = Arc<Mutex<T>>;
 
 pub const USOMM: &str = "usomm";
 
 lazy_static! {
-    pub static ref ACTIVE_AUCTIONS: Cache<HashMap<u32, Auction>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref ENDED_AUCTIONS: Cache<HashMap<u32, Auction>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref BIDS_BY_ACTIVE_AUCTION: Cache<HashMap<u32, Vec<Bid>>> = Arc::new(Mutex::new(HashMap::new()));
-    pub static ref PRICE_BY_AUCTION: Cache<HashMap<u32, Price>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref ACTIVE_AUCTIONS: Arc<RwLock<ExpiringCache<HashMap<u32, Auction>>>> = Arc::new(RwLock::new(ExpiringCache::new()));
+    pub static ref ENDED_AUCTIONS: Arc<RwLock<ExpiringCache<HashMap<u32, Auction>>>> = Arc::new(RwLock::new(ExpiringCache::new()));
+    pub static ref BIDS_BY_ACTIVE_AUCTION: Arc<RwLock<ExpiringCache<HashMap<u32, Vec<Bid>>>>> = Arc::new(RwLock::new(ExpiringCache::new()));
 
     /// Balances cache, where each key is the ID of the balance, either an address in the case of
     /// vesting accounts, or a designation such as "communitypool" or "bonded" in the case of

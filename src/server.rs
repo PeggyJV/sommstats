@@ -16,13 +16,18 @@ use serde::{Deserialize, Serialize};
 use crate::{
     accounting::{FOUNDATION_ADDRESS, FOUNDATION_ADDRESS_2, TOTAL_USOMM_SUPPLY, VESTING_ACCOUNTS},
     application::BALANCES,
+    auction::{get_active_auctions, get_auction_by_id, get_bids_by_auction_id, get_ended_auction},
     query::COMMUNITY_POOL_KEY,
 };
 
 pub async fn listen(addr: SocketAddr) -> Result<()> {
     let app = Router::new()
         .route("/", get(|| async { StatusCode::OK }))
-        .route("/v1/circulating-supply", get(get_circulating_supply));
+        .route("/v1/circulating-supply", get(get_circulating_supply))
+        .route("/v1/auctions/active", get(get_active_auctions))
+        .route("/v1/auctions/ended", get(get_ended_auction))
+        .route("/v1/auctions/:id", get(get_auction_by_id))
+        .route("/v1/auctions/:id/bids", get(get_bids_by_auction_id));
 
     info!("listening on {}", addr);
     Ok(axum::Server::bind(&addr)
@@ -64,13 +69,24 @@ pub async fn get_circulating_supply() -> Response {
     // convert to SOMM
     let circulating_supply = circulating_supply / 1_000_000;
 
-    response(circulating_supply.to_string())
+    text_response(circulating_supply.to_string())
 }
 
-pub fn response(body: String) -> Response {
+pub fn text_response(body: String) -> Response {
     Response::builder()
         .header("Content-Type", "text/plain")
         .body(body)
+        .map_err(|e| {
+            error!("error building response: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })
+        .into_response()
+}
+
+pub fn json_response<T: Serialize>(body: T) -> Response {
+    Response::builder()
+        .header("Content-Type", "application/json")
+        .body(serde_json::to_string(&body).unwrap())
         .map_err(|e| {
             error!("error building response: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
