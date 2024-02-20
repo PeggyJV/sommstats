@@ -84,6 +84,8 @@ pub struct CacheSection {
     pub community_pool_update_period: u64,
     pub vesting_update_period: u64,
     pub foundation_wallet_update_period: u64,
+    pub active_auctions_update_period: u64,
+    pub ended_auctions_update_period: u64,
 }
 
 impl Default for CacheSection {
@@ -92,6 +94,8 @@ impl Default for CacheSection {
             community_pool_update_period: HOUR_IN_SECS,
             vesting_update_period: HOUR_IN_SECS,
             foundation_wallet_update_period: HOUR_IN_SECS,
+            active_auctions_update_period: HOUR_IN_SECS,
+            ended_auctions_update_period: HOUR_IN_SECS,
         }
     }
 }

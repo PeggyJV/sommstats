@@ -1,7 +1,6 @@
 # sommstats
 
-An API for Sommelier statistics
-
+A convenience API for Sommelier state.
 
 ## Getting Started
 
